@@ -75,6 +75,11 @@ Magisk-DeviceSpoofer/
 
 ## 🚀 安装
 
+### ⬇️ 下载
+
+- **[Releases（推荐）](https://github.com/L0NE-6/Magisk-DeviceSpoofer/releases/latest)**：按品牌整包 / 全量合集 / 机型索引 CSV / SHA256 校验文件，全部由 Actions 自动构建；
+- 或直接在仓库目录树点开 `品牌/机型 (代号)/` 下载单个机型 zip。
+
 ### Android 6 ~ 17（推荐）
 
 1. 下载目标机型的 zip（管理器内直接下载，或 `git clone` 后从本地导入）；
@@ -137,6 +142,7 @@ getprop ro.product.marketname  # 应输出目标机型名，如 Xiaomi 14
 ## 🤖 自动同步
 
 - GitHub Actions 每日 **02:30（北京时间）** 拉取 [MobileModels](https://github.com/KHwang9883/MobileModels) 最新 `brands/*.md`，自动重建全部模块并提交，未变化的机型不会产生任何改动；
+- 同步产生变更时会自动发布一个 `vYYYYMMDD` 的 **[Release](https://github.com/L0NE-6/Magisk-DeviceSpoofer/releases)**（全量合集 + 按品牌整包 + 机型索引 CSV + SHA256 校验文件）；
 - 相关文件：生成脚本 [`tools/generate_all_brand_modules.ps1`](tools/generate_all_brand_modules.ps1) · 同步脚本 [`tools/sync_from_upstream.ps1`](tools/sync_from_upstream.ps1) · 工作流 [`.github/workflows/sync-modules.yml`](.github/workflows/sync-modules.yml)；
 - 手动触发：**Actions → Sync modules from MobileModels → Run workflow**（`force` 强制重建，`dry_run` 只生成不提交）。
 

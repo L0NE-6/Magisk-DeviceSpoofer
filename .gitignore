@@ -7,3 +7,6 @@ Desktop.ini
 
 # 上游数据临时克隆（CI 同步用）
 _upstream/
+
+# Release 资产构建目录（仅 CI 使用，不提交）
+dist/

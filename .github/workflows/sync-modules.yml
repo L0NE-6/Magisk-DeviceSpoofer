@@ -14,6 +14,10 @@ on:
         description: '只生成并输出变更统计，不提交（验证用）'
         type: boolean
         default: false
+      release:
+        description: '构建并发布 Release（即使本次无模块变化）'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -42,26 +46,60 @@ jobs:
         run: ./tools/sync_from_upstream.ps1 -UpstreamDir ./_upstream -Force:($env:FORCE -eq 'true')
 
       - name: Commit & push
+        id: commit
         env:
           DRY_RUN: ${{ inputs.dry_run }}
+          CHANGES_FILE: ${{ runner.temp }}/module-changes.txt
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           CHANGED=$(git diff --cached --numstat | wc -l)
           echo "changed files: ${CHANGED}"
+          git diff --cached --name-status > "$CHANGES_FILE"
           if [ "${CHANGED}" != "0" ]; then
             git diff --cached --stat | tail -n 12
           fi
           if [ "${DRY_RUN}" = "true" ]; then
             echo 'dry-run: skip commit & push'
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           if [ "${CHANGED}" = "0" ]; then
             echo 'No changes to commit.'
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           SHORT_SHA=$(git -C _upstream rev-parse --short HEAD)
           UPSTREAM_DATE=$(git -C _upstream log -1 --format=%cs)
           git commit -m "sync: MobileModels@${SHORT_SHA} (${UPSTREAM_DATE})"
           git push origin HEAD:main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build release assets
+        id: build
+        if: ${{ (steps.commit.outputs.changed == 'true' || inputs.release) && inputs.dry_run != true }}
+        shell: pwsh
+        env:
+          CHANGED: ${{ steps.commit.outputs.changed }}
+          CHANGES_FILE: ${{ runner.temp }}/module-changes.txt
+        run: |
+          $tag = 'v' + [DateTime]::UtcNow.AddHours(8).ToString('yyyyMMdd')
+          $sha = (git -C _upstream rev-parse HEAD).Trim()
+          $date = (git -C _upstream log -1 --format=%cs).Trim()
+          ./tools/build_release_assets.ps1 -Tag $tag -UpstreamSha $sha -UpstreamDate $date -ChangesFile $env:CHANGES_FILE -Changed:($env:CHANGED -eq 'true') -WorkflowRun "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+      - name: Publish release
+        if: ${{ (steps.commit.outputs.changed == 'true' || inputs.release) && inputs.dry_run != true }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.build.outputs.tag }}"
+          TITLE=$(cat dist/release-title.txt)
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip dist/*.csv dist/SHA256SUMS_*.txt --clobber
+            gh release edit "$TAG" --title "$TITLE" --notes-file dist/release-notes.md
+          else
+            gh release create "$TAG" --title "$TITLE" --notes-file dist/release-notes.md dist/*.zip dist/*.csv dist/SHA256SUMS_*.txt
+          fi
+          echo "Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
