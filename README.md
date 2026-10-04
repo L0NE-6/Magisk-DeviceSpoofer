@@ -2,14 +2,13 @@
 
 # 📱 全机型机型伪装 · Magisk 模块合集
 
-**26 个品牌 · 3548 个机型 · Android 1 ~ 17 全兼容 · 纯本地脚本 · 无联网**
+**全品牌机型伪装模块 · Android 1 ~ 17 全兼容 · 纯本地脚本 · 无联网 · 每日自动同步上游机型数据**
 
 一键把手机伪装成任意目标机型 —— `manufacturer / brand / model / name / marketname` 全分区覆盖
 
 <img src="https://img.shields.io/badge/Android-1%20~%2017-3DDC84?style=for-the-badge&logo=android&logoColor=white" />
 <img src="https://img.shields.io/badge/Magisk%20%7C%20KernelSU%20%7C%20APatch-Supported-00AF9A?style=for-the-badge" />
-<img src="https://img.shields.io/badge/%E6%9C%BA%E5%9E%8B-3548-FFC75F?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Brands-26-A78BFA?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Sync-Auto%20Daily-FFC75F?style=for-the-badge&logo=githubactions&logoColor=white" />
 <img src="https://img.shields.io/badge/Network-None-2088FF?style=for-the-badge" />
 <img src="https://img.shields.io/badge/License-MIT-F472B6?style=for-the-badge" />
 
@@ -19,7 +18,7 @@
 
 ## ✨ 这是什么
 
-- **26 个品牌 × 3548 个机型**：vivo、三星、OPPO、华为、小米、红米、荣耀、一加…… 每个机型一个独立、可直接刷入的 Magisk 模块 zip；
+- **主流品牌全收录**：vivo、三星、OPPO、华为、小米、红米、荣耀、一加…… 每个机型一个独立、可直接刷入的 Magisk 模块 zip；
 - 刷入后把 `ro.product.*` 系列属性伪装为目标机型，覆盖 **generic + system / system_ext / vendor / product / odm / bootimage / vendor_dlkm / odm_dlkm** 各分区属性；
 - `post-fs-data`（Zygote 启动前）+ `service`（开机后）双阶段写入，防止系统组件把属性回写；
 - **Android 1 ~ 17 全兼容**：Android 6-17 走管理器模块；Android 2.2-5.x 走 recovery 直改 `build.prop`；Android 1.x-5.x 可手动执行 `legacy/` 脚本；
@@ -50,6 +49,8 @@ Magisk-DeviceSpoofer/
 
 ### 品牌与机型数量
 
+<!-- BRAND_STATS:BEGIN -->
+
 | 品牌 | 数量 | 品牌 | 数量 |
 | :--- | ---: | :--- | ---: |
 | vivo | 548 | 魅族 | 86 |
@@ -67,6 +68,8 @@ Magisk-DeviceSpoofer/
 | Nothing | 13 | 乐视 | 12 |
 
 **合计：3548 个机型 / 26 个品牌**
+
+<!-- BRAND_STATS:END -->
 
 ---
 
@@ -128,6 +131,14 @@ getprop ro.product.marketname  # 应输出目标机型名，如 Xiaomi 14
 - 机型数据来自 **[KHwang9883/MobileModels](https://github.com/KHwang9883/MobileModels)**（CC BY-NC-SA 4.0）：手机品牌 / 机型 / 型号 / 代号汇总；
 - 本仓库将上述数据批量化生成为独立 Magisk 模块，**免费分享、无任何商业用途**；
 - 代码与脚本部分：MIT；机型数据部分遵循原数据 CC BY-NC-SA 4.0 许可。
+
+---
+
+## 🤖 自动同步
+
+- GitHub Actions 每日 **02:30（北京时间）** 拉取 [MobileModels](https://github.com/KHwang9883/MobileModels) 最新 `brands/*.md`，自动重建全部模块并提交，未变化的机型不会产生任何改动；
+- 相关文件：生成脚本 [`tools/generate_all_brand_modules.ps1`](tools/generate_all_brand_modules.ps1) · 同步脚本 [`tools/sync_from_upstream.ps1`](tools/sync_from_upstream.ps1) · 工作流 [`.github/workflows/sync-modules.yml`](.github/workflows/sync-modules.yml)；
+- 手动触发：**Actions → Sync modules from MobileModels → Run workflow**（`force` 强制重建，`dry_run` 只生成不提交）。
 
 ---
 

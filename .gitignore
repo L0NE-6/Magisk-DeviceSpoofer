@@ -4,3 +4,6 @@ Desktop.ini
 .DS_Store
 *.swp
 *.tmp
+
+# 上游数据临时克隆（CI 同步用）
+_upstream/

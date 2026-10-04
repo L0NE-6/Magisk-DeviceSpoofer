@@ -1,0 +1,64 @@
+name: Sync modules from MobileModels
+
+on:
+  schedule:
+    # 每天 02:30（北京时间，UTC+8）
+    - cron: '30 18 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: '忽略指纹检查，强制重新生成（验证/修复用）'
+        type: boolean
+        default: false
+      dry_run:
+        description: '只生成并输出变更统计，不提交（验证用）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-modules
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone upstream MobileModels
+        run: git clone --depth 1 https://github.com/KHwang9883/MobileModels.git _upstream
+
+      - name: Regenerate modules
+        shell: pwsh
+        env:
+          FORCE: ${{ inputs.force }}
+        run: ./tools/sync_from_upstream.ps1 -UpstreamDir ./_upstream -Force:($env:FORCE -eq 'true')
+
+      - name: Commit & push
+        env:
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          CHANGED=$(git diff --cached --numstat | wc -l)
+          echo "changed files: ${CHANGED}"
+          if [ "${CHANGED}" != "0" ]; then
+            git diff --cached --stat | tail -n 12
+          fi
+          if [ "${DRY_RUN}" = "true" ]; then
+            echo 'dry-run: skip commit & push'
+            exit 0
+          fi
+          if [ "${CHANGED}" = "0" ]; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          SHORT_SHA=$(git -C _upstream rev-parse --short HEAD)
+          UPSTREAM_DATE=$(git -C _upstream log -1 --format=%cs)
+          git commit -m "sync: MobileModels@${SHORT_SHA} (${UPSTREAM_DATE})"
+          git push origin HEAD:main
