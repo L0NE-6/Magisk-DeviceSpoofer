@@ -73,7 +73,8 @@ foreach($d in (Get-ChildItem -LiteralPath $root -Directory)){
 }
 $nameList.Sort([StringComparer]::Ordinal)
 
-$date = $Tag.TrimStart('v')
+$ver = $Tag
+$pubDate = [DateTime]::UtcNow.AddHours(8).ToString('yyyy-MM-dd HH:mm')
 $total = 0
 $brandRows = New-Object System.Collections.Generic.List[object]
 $allEntries = New-Object System.Collections.Generic.List[object]
@@ -99,16 +100,16 @@ foreach($bn in $nameList){
         if($zipName -match '^(.*) \(([^()]+)\)\.zip$'){ $model = $Matches[2] }
         $indexLines.Add(('"{0}","{1}","{2}","{3}","{4}","{5}"' -f (Esc-Csv $bn), (Esc-Csv $market), (Esc-Csv $code), (Esc-Csv $model), (Esc-Csv ($bn + '/' + $folderName)), (Esc-Csv $zipName)))
     }
-    $assetName = ('Magisk-DeviceSpoofer_' + (Get-BrandSlug $bn) + '_' + $zips.Count + '_' + $date + '.zip')
+    $assetName = ('Magisk-DeviceSpoofer_' + (Get-BrandSlug $bn) + '_' + $zips.Count + '_' + $ver + '.zip')
     New-ZipFromEntries $entries.ToArray() (Join-Path $dist $assetName)
     $total += $zips.Count
     $brandRows.Add([pscustomobject]@{ Name = $bn; Count = $zips.Count; Asset = $assetName })
     Write-Host ($bn + ': ' + $zips.Count + ' 个机型 -> ' + $assetName)
 }
 
-$fullName = ('Magisk-DeviceSpoofer_All_' + $total + '_' + $date + '.zip')
+$fullName = ('Magisk-DeviceSpoofer_All_' + $total + '_' + $ver + '.zip')
 New-ZipFromEntries $allEntries.ToArray() (Join-Path $dist $fullName)
-$indexName = ('Magisk-DeviceSpoofer_Index_' + $total + '_' + $date + '.csv')
+$indexName = ('Magisk-DeviceSpoofer_Index_' + $total + '_' + $ver + '.csv')
 Write-Lf (Join-Path $dist $indexName) (([string]::Join("`n", $indexLines)) + "`n")
 
 # SHA256 校验和（zip + csv，名称排序保证可复现）
@@ -124,7 +125,7 @@ foreach($n in $sumNames){
     $h = (Get-FileHash -LiteralPath (Join-Path $dist $n) -Algorithm SHA256).Hash.ToLowerInvariant()
     $sumLines.Add($h + '  ' + $n)
 }
-$sumName = ('SHA256SUMS_' + $date + '.txt')
+$sumName = ('SHA256SUMS_' + $ver + '.txt')
 Write-Lf (Join-Path $dist $sumName) (([string]::Join("`n", $sumLines)) + "`n")
 
 # 变更摘要（优先读 CI 生成的 name-status 文件，本地回退到 git diff）
@@ -182,12 +183,13 @@ $notes.Add('### 下载文件')
 $notes.Add('| 文件 | 内容 |')
 $notes.Add('| :--- | :--- |')
 $notes.Add('| **' + $fullName + '**（' + $fullMB + ' MB） | 全量 ' + $total + ' 个机型，一次拿全 |')
-$notes.Add('| **Magisk-DeviceSpoofer_品牌_数量_' + $date + '.zip** × ' + $brandRows.Count + ' | 按品牌整包（英文品牌名，如 Xiaomi=小米 / Samsung=三星 / HONOR=荣耀；解压后到对应机型文件夹取 zip 刷入） |')
+$notes.Add('| **Magisk-DeviceSpoofer_品牌_数量_' + $ver + '.zip** × ' + $brandRows.Count + ' | 按品牌整包（英文品牌名，如 Xiaomi=小米 / Samsung=三星 / HONOR=荣耀；解压后到对应机型文件夹取 zip 刷入） |')
 $notes.Add('| **' + $indexName + '** | 机型索引：品牌 / 机型 / 代号 / 型号 / 包内路径 |')
 $notes.Add('| **' + $sumName + '** | SHA256 校验和 |')
 $notes.Add('')
 $notes.Add('### 本版要点')
 $notes.Add('- 数据版本：' + $shaLine)
+$notes.Add('- 发布时间：' + $pubDate + '（北京时间）')
 foreach($l in $changeLines){ $notes.Add($l) }
 $notes.Add('')
 $notes.Add('### 使用')
