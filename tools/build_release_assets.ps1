@@ -53,6 +53,19 @@ if([IO.Directory]::Exists($dist)){ [IO.Directory]::Delete($dist, $true) }
 [void][IO.Directory]::CreateDirectory($dist)
 
 $infra = @('.github','tools','_upstream','dist')
+# Release 资产文件名只能用 ASCII（GitHub 会替换非 ASCII 字符），品牌目录名映射为英文 slug
+$brandSlug = @{
+    '小米'='Xiaomi'; '红米'='Redmi'; '三星'='Samsung'; '华为'='Huawei'; '荣耀'='HONOR'
+    '魅族'='Meizu'; '华硕'='ASUS'; '中兴'='ZTE'; '摩托罗拉'='Motorola'; '索尼'='Sony'
+    '酷派'='Coolpad'; '智选'='Zhixuan'; '谷歌'='Google'; '努比亚'='Nubia'; '联想'='Lenovo'
+    '一加'='OnePlus'; '诺基亚'='Nokia'; '黑鲨'='BlackShark'; '锤子'='Smartisan'; '乐视'='Letv'
+}
+function Get-BrandSlug([string]$n){
+    if($brandSlug.ContainsKey($n)){ return $brandSlug[$n] }
+    $s = ($n -replace '[^A-Za-z0-9._-]','-').Trim('-')
+    if($s -eq ''){ $s = 'Brand' }
+    return $s
+}
 $nameList = New-Object 'System.Collections.Generic.List[string]'
 foreach($d in (Get-ChildItem -LiteralPath $root -Directory)){
     if($d.Name -in $infra -or $d.Name.StartsWith('.')){ continue }
@@ -86,16 +99,16 @@ foreach($bn in $nameList){
         if($zipName -match '^(.*) \(([^()]+)\)\.zip$'){ $model = $Matches[2] }
         $indexLines.Add(('"{0}","{1}","{2}","{3}","{4}","{5}"' -f (Esc-Csv $bn), (Esc-Csv $market), (Esc-Csv $code), (Esc-Csv $model), (Esc-Csv ($bn + '/' + $folderName)), (Esc-Csv $zipName)))
     }
-    $assetName = ($bn + '_' + $zips.Count + '机型_' + $date + '.zip')
+    $assetName = ('Magisk-DeviceSpoofer_' + (Get-BrandSlug $bn) + '_' + $zips.Count + '_' + $date + '.zip')
     New-ZipFromEntries $entries.ToArray() (Join-Path $dist $assetName)
     $total += $zips.Count
     $brandRows.Add([pscustomobject]@{ Name = $bn; Count = $zips.Count; Asset = $assetName })
     Write-Host ($bn + ': ' + $zips.Count + ' 个机型 -> ' + $assetName)
 }
 
-$fullName = ('全机型合集_' + $total + '机型_' + $date + '.zip')
+$fullName = ('Magisk-DeviceSpoofer_All_' + $total + '_' + $date + '.zip')
 New-ZipFromEntries $allEntries.ToArray() (Join-Path $dist $fullName)
-$indexName = ('机型索引_' + $total + '机型_' + $date + '.csv')
+$indexName = ('Magisk-DeviceSpoofer_Index_' + $total + '_' + $date + '.csv')
 Write-Lf (Join-Path $dist $indexName) (([string]::Join("`n", $indexLines)) + "`n")
 
 # SHA256 校验和（zip + csv，名称排序保证可复现）
@@ -169,7 +182,7 @@ $notes.Add('### 下载文件')
 $notes.Add('| 文件 | 内容 |')
 $notes.Add('| :--- | :--- |')
 $notes.Add('| **' + $fullName + '**（' + $fullMB + ' MB） | 全量 ' + $total + ' 个机型，一次拿全 |')
-$notes.Add('| **品牌_数量机型_' + $date + '.zip** × ' + $brandRows.Count + ' | 按品牌整包（解压后到对应机型文件夹取 zip 刷入） |')
+$notes.Add('| **Magisk-DeviceSpoofer_品牌_数量_' + $date + '.zip** × ' + $brandRows.Count + ' | 按品牌整包（英文品牌名，如 Xiaomi=小米 / Samsung=三星 / HONOR=荣耀；解压后到对应机型文件夹取 zip 刷入） |')
 $notes.Add('| **' + $indexName + '** | 机型索引：品牌 / 机型 / 代号 / 型号 / 包内路径 |')
 $notes.Add('| **' + $sumName + '** | SHA256 校验和 |')
 $notes.Add('')
