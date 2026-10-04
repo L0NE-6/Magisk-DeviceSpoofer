@@ -96,10 +96,17 @@ jobs:
         run: |
           TAG="${{ steps.build.outputs.tag }}"
           TITLE=$(cat dist/release-title.txt)
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" dist/*.zip dist/*.csv dist/SHA256SUMS_*.txt --clobber
-            gh release edit "$TAG" --title "$TITLE" --notes-file dist/release-notes.md
-          else
-            gh release create "$TAG" --title "$TITLE" --notes-file dist/release-notes.md dist/*.zip dist/*.csv dist/SHA256SUMS_*.txt
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "$TITLE" --notes-file dist/release-notes.md
           fi
+          for f in dist/*.zip dist/*.csv dist/SHA256SUMS_*.txt; do
+            ok=""
+            for i in 1 2 3; do
+              if gh release upload "$TAG" "$f" --clobber; then ok=1; break; fi
+              echo "upload retry $i: $f"
+              sleep 5
+            done
+            if [ -z "$ok" ]; then echo "upload failed: $f"; exit 1; fi
+          done
+          gh release edit "$TAG" --title "$TITLE" --notes-file dist/release-notes.md
           echo "Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
