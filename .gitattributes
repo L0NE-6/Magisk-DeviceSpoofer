@@ -1,0 +1,5 @@
+# shell 脚本保持 LF，避免 Windows 克隆后 shebang 带 \r
+* text=auto eol=lf
+*.zip binary
+*.png binary
+*.jpg binary
