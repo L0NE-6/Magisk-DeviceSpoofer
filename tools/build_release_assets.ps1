@@ -52,7 +52,7 @@ if(-not $dist.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)){ throw "
 if([IO.Directory]::Exists($dist)){ [IO.Directory]::Delete($dist, $true) }
 [void][IO.Directory]::CreateDirectory($dist)
 
-$infra = @('.github','tools','_upstream','dist')
+$infra = @('.github','tools','_upstream','dist','update')
 # Release 资产文件名只能用 ASCII（GitHub 会替换非 ASCII 字符），品牌目录名映射为英文 slug
 $brandSlug = @{
     '小米'='Xiaomi'; '红米'='Redmi'; '三星'='Samsung'; '华为'='Huawei'; '荣耀'='HONOR'
@@ -199,6 +199,7 @@ $notes.Add('3. Android 2.2-5.x 用 recovery 直接刷同一 zip；Android 1.x-5.
 $notes.Add('4. 校验下载：sha256sum -c ' + $sumName + '（Windows 可用 certutil -hashfile 逐个核对）。')
 $notes.Add('')
 $notes.Add('### 说明')
+$notes.Add('- 模块内置更新信息（updateJson）：刷入后可在 Magisk / KernelSU / APatch 管理器内直接检查并更新。')
 $notes.Add('- 数据来源：KHwang9883/MobileModels（CC BY-NC-SA 4.0），本仓库免费分享、无任何商业用途；')
 $notes.Add('- 单个机型 zip 也可以直接在仓库目录树中下载：https://github.com/L0NE-6/Magisk-DeviceSpoofer')
 if($WorkflowRun){

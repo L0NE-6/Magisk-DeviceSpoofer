@@ -112,6 +112,17 @@ getprop ro.product.marketname  # 应输出目标机型名，如 Xiaomi 14
 
 ---
 
+## 🔄 管理器内更新
+
+- 每个模块内置更新信息（`updateJson`）：**刷入后，Magisk / KernelSU / APatch 管理器的模块列表在有新版本时会显示「更新」，点一下即可下载并安装**；
+- 版本号规则：`v2026.10.04.3`（日期 + 当日序号），只有该机型模块内容真的发生变化时才会提升，不会出现全员假更新；
+- 更新信息文件在仓库 [`update/`](update/) 目录（`<模块id>.json`），由 Actions 自动生成；
+- 注意：更新检查需手机端能访问 `raw.githubusercontent.com`，国内网络受限时可能收不到更新提示。
+
+> 之前刷过旧版（没有 updateJson 的版本）需要在管理器里重新刷入一次，之后即可自动检查更新。
+
+---
+
 ## ⚙️ 工作原理
 
 - 模块通过 `resetprop`（自动探测 Magisk / KernelSU / APatch 路径）写入属性，各分区属性同时覆盖；
@@ -143,6 +154,7 @@ getprop ro.product.marketname  # 应输出目标机型名，如 Xiaomi 14
 
 - GitHub Actions 每日 **02:30（北京时间）** 拉取 [MobileModels](https://github.com/KHwang9883/MobileModels) 最新 `brands/*.md`，自动重建全部模块并提交，未变化的机型不会产生任何改动；
 - 同步产生变更时会自动发布一个**新版本 Release**（`v1`、`v2`、`v3`… 依次递增，每次更新独立成版、不覆盖不合并；全量合集 + 按品牌整包 + 机型索引 CSV + SHA256 校验文件）；
+- 每次同步同时写入模块更新信息（`updateJson`）：管理器（Magisk / KernelSU / APatch）内可直接检查更新、一键升级；
 - 相关文件：生成脚本 [`tools/generate_all_brand_modules.ps1`](tools/generate_all_brand_modules.ps1) · 同步脚本 [`tools/sync_from_upstream.ps1`](tools/sync_from_upstream.ps1) · 工作流 [`.github/workflows/sync-modules.yml`](.github/workflows/sync-modules.yml)；
 - 手动触发：**Actions → Sync modules from MobileModels → Run workflow**（`force` 强制重建，`dry_run` 只生成不提交）。
 

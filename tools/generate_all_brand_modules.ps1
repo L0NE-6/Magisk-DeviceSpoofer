@@ -432,6 +432,10 @@ $tplReadme = @'
 
 ## 校验
 
+## 更新
+
+模块内置更新信息：刷入后可在 Magisk / KernelSU / APatch 管理器里直接检查并安装新版本。
+
 getprop ro.product.model 应为 @@MODEL@@，getprop ro.product.marketname 应为 @@MARKET@@。
 
 ## 同机型其它可用型号号（改 system.prop / apply_props.sh 即可替换）

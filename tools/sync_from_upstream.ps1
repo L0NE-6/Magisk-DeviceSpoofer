@@ -48,7 +48,7 @@ if(($fingerprint -eq $oldFingerprint) -and (-not $Force)){
 Write-Host ("同步开始: upstream fingerprint " + $fingerprint)
 
 # 品牌目录 = 仓库根目录下除基础设施外的目录
-$infra = @('.github','tools','_upstream')
+$infra = @('.github','tools','_upstream','update')
 function Get-BrandDirs { Get-ChildItem -LiteralPath $root -Directory | Where-Object { $_.Name -notin $infra -and -not $_.Name.StartsWith('.') } }
 function Count-Zips([object[]]$Dirs){ $n = 0; foreach($d in $Dirs){ if($d){ $n += @(Get-ChildItem -LiteralPath $d.FullName -Recurse -File -Filter *.zip).Count } }; return $n }
 
@@ -63,6 +63,9 @@ Write-Host ("生成后 zip 数量: " + $after)
 # 安全阀：数量异常下降时中止，避免把误删内容提交上去
 if($after -le 0){ throw "生成结果为空，中止（不提交）" }
 if($before -gt 0 -and $after -lt [math]::Floor($before * 0.8)){ throw ("生成数量异常下降: " + $before + " -> " + $after + "，中止（不提交）") }
+
+# 为每个模块写入管理器更新信息（updateJson / version / versionCode）
+& (Join-Path $PSScriptRoot 'apply_update_metadata.ps1') -Root $root
 
 # 更新 README.md 品牌统计块
 $readmePath = Join-Path $root 'README.md'
