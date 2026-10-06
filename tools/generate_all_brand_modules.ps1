@@ -171,7 +171,7 @@ ui_print "  @@MARKET@@ 机型伪装"
 ui_print "  Android 1-17 适配版"
 ui_print " -------------------------- "
 
-for f in apply_props.sh post-fs-data.sh service.sh; do
+for f in apply_props.sh post-fs-data.sh service.sh action.sh; do
 	[ -f "$MODPATH/$f" ] && set_perm "$MODPATH/$f" 0 0 0755
 done
 [ -f "$MODPATH/system.prop" ] && set_perm "$MODPATH/system.prop" 0 0 0644
@@ -180,6 +180,24 @@ done
 ui_print " - 安装完成，重启后生效"
 ui_print " - 如已装旧版机型模块，请先卸载旧版"
 ui_print " -------------------------- "
+ui_print " - 即将打开作者酷安主页，欢迎关注~"
+ui_print " -------------------------- "
+
+# 安装完成后跳转作者酷安主页：装有酷安 App 直接进主页，未安装则用浏览器打开
+if [ -x /system/bin/am ]; then
+/system/bin/am start -a android.intent.action.VIEW -d "coolapk://u/1429422" >/dev/null 2>&1 || \
+/system/bin/am start -a android.intent.action.VIEW -d "https://www.coolapk.com/u/1429422" >/dev/null 2>&1
+fi
+'@
+
+# KernelSU / APatch 模块「执行 / Action」按钮：随时打开作者酷安主页
+$tplAction = @'
+#!/system/bin/sh
+# 打开作者酷安主页：装有酷安 App 直接跳转，未安装则用浏览器打开
+# （KernelSU / APatch 管理器：模块卡片「执行 / Action」按钮）
+
+/system/bin/am start -a android.intent.action.VIEW -d "coolapk://u/1429422" >/dev/null 2>&1 || \
+/system/bin/am start -a android.intent.action.VIEW -d "https://www.coolapk.com/u/1429422" >/dev/null 2>&1
 '@
 
 $tplApplyProps = @'
@@ -272,12 +290,16 @@ if [ -f /data/adb/magisk/util_functions.sh ] || [ -d /sbin/.magisk ] || [ -d /da
 			mkdir -p "$MODPATH" 2>/dev/null
 			$UNZIP -o "$ZIPFILE" -x 'META-INF/*' -d "$MODPATH" >/dev/null 2>&1
 			if [ -f "$MODPATH/module.prop" ]; then
-				for f in apply_props.sh post-fs-data.sh service.sh; do
+				for f in apply_props.sh post-fs-data.sh service.sh action.sh; do
 					chmod 0755 "$MODPATH/$f" 2>/dev/null
 				done
 				chmod 0644 "$MODPATH/module.prop" "$MODPATH/system.prop" 2>/dev/null
 				ui_print "- 模块已释放到 $MODPATH"
 				ui_print "- 重启后机型生效"
+				if [ -x /system/bin/am ]; then
+					/system/bin/am start -a android.intent.action.VIEW -d "coolapk://u/1429422" >/dev/null 2>&1 || \
+					/system/bin/am start -a android.intent.action.VIEW -d "https://www.coolapk.com/u/1429422" >/dev/null 2>&1
+				fi
 				exit 0
 			fi
 		fi
@@ -432,11 +454,17 @@ $tplReadme = @'
 
 ## 校验
 
+getprop ro.product.model 应为 @@MODEL@@，getprop ro.product.marketname 应为 @@MARKET@@。
+
 ## 更新
 
 模块内置更新信息：刷入后可在 Magisk / KernelSU / APatch 管理器里直接检查并安装新版本。
 
-getprop ro.product.model 应为 @@MODEL@@，getprop ro.product.marketname 应为 @@MARKET@@。
+## 关注作者
+
+- 安装完成后会自动打开作者酷安主页：装有酷安 App 直接跳转，未安装则用浏览器打开；
+- 之后可以随时在 KernelSU / APatch 管理器的模块卡片点「执行」按钮再次打开；
+- 酷安主页：https://www.coolapk.com/u/1429422
 
 ## 同机型其它可用型号号（改 system.prop / apply_props.sh 即可替换）
 
@@ -574,6 +602,7 @@ foreach($brand in $brands){
             Write-Lf (Join-Path $dir 'apply_props.sh') $applyText
             Write-Lf (Join-Path $dir 'post-fs-data.sh') $tplPostFs
             Write-Lf (Join-Path $dir 'service.sh') $tplService
+            Write-Lf (Join-Path $dir 'action.sh') $tplAction
             Write-Lf (Join-Path $dir 'README.md') $readmeText
             Write-Lf (Join-Path $dir 'META-INF/com/google/android/update-binary') $updateBinText
             Write-Lf (Join-Path $dir 'META-INF/com/google/android/updater-script') $tplUpdaterScript
