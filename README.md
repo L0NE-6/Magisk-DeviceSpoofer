@@ -167,6 +167,16 @@ getprop ro.product.marketname  # 应输出目标机型名，如 Xiaomi 14
 
 ---
 
+## ☕ 投喂支持
+
+全量机型数据、模块生成、每日自动同步与版本发布，都是免费维护的。如果这个项目帮到了你，欢迎投喂作者一杯奶茶——**完全自愿**，不影响任何功能的使用。
+
+| 支付宝 | 微信支付 |
+| :---: | :---: |
+| <img src="assets/sponsor/alipay.jpg" width="300" alt="支付宝投喂码" /> | <img src="assets/sponsor/wechat.png" width="300" alt="微信投喂码" /> |
+
+---
+
 ## 📄 License
 
 代码部分 [MIT](LICENSE) © 2026 L0NE-6；机型数据部分 © [MobileModels](https://github.com/KHwang9883/MobileModels)（CC BY-NC-SA 4.0）。
