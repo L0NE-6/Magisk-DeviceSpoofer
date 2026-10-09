@@ -79,7 +79,6 @@ Magisk-DeviceSpoofer/
 
 - **[Releases（推荐）](https://github.com/L0NE-6/Magisk-DeviceSpoofer/releases/latest)**：按品牌整包 / 全量合集 / 机型索引 CSV / SHA256 校验文件，全部由 Actions 自动构建；
 - 或直接在仓库目录树点开 `品牌/机型 (代号)/` 下载单个机型 zip。
-- 安装完成后模块会自动打开作者的酷安主页（装有酷安 App 直接跳转，未安装则用浏览器打开）；KernelSU / APatch 用户也可用模块卡片的「执行」按钮随时再打开。
 
 ### Android 6 ~ 17（推荐）
 

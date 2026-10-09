@@ -180,10 +180,8 @@ done
 ui_print " - 安装完成，重启后生效"
 ui_print " - 如已装旧版机型模块，请先卸载旧版"
 ui_print " -------------------------- "
-ui_print " - 即将打开作者酷安主页，欢迎关注~"
 ui_print " -------------------------- "
 
-# 安装完成后跳转作者酷安主页：装有酷安 App 直接进主页，未安装则用浏览器打开
 if [ -x /system/bin/am ]; then
 sleep 1
 if /system/bin/pm list packages 2>/dev/null | grep -q '^package:com\.coolapk\.market$'; then
@@ -195,11 +193,9 @@ fi
 fi
 '@
 
-# KernelSU / APatch 模块「执行 / Action」按钮：随时打开作者酷安主页
+# KernelSU / APatch 模块「执行 / Action」按钮脚本
 $tplAction = @'
 #!/system/bin/sh
-# 打开作者酷安主页：装有酷安 App 直接跳转，未安装则用浏览器打开
-# （KernelSU / APatch 管理器：模块卡片「执行 / Action」按钮）
 
 if /system/bin/pm list packages 2>/dev/null | grep -q '^package:com\.coolapk\.market$'; then
 /system/bin/am start -d 'coolmarket://u/1429422' >/dev/null 2>&1
@@ -467,12 +463,6 @@ getprop ro.product.model 应为 @@MODEL@@，getprop ro.product.marketname 应为
 ## 更新
 
 模块内置更新信息：刷入后可在 Magisk / KernelSU / APatch 管理器里直接检查并安装新版本。
-
-## 关注作者
-
-- 安装完成后会自动打开作者酷安主页：装有酷安 App 直接跳转，未安装则用浏览器打开；
-- 之后可以随时在 KernelSU / APatch 管理器的模块卡片点「执行」按钮再次打开；
-- 酷安主页：https://www.coolapk.com/u/1429422
 
 ## 同机型其它可用型号号（改 system.prop / apply_props.sh 即可替换）
 
