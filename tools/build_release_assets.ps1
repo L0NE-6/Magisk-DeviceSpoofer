@@ -200,7 +200,6 @@ $notes.Add('4. 校验下载：sha256sum -c ' + $sumName + '（Windows 可用 cer
 $notes.Add('')
 $notes.Add('### 说明')
 $notes.Add('- 模块内置更新信息（updateJson）：刷入后可在 Magisk / KernelSU / APatch 管理器内直接检查并更新。')
-$notes.Add('- 安装完成后模块会自动打开作者的酷安主页（装有酷安 App 直接跳转，未安装则用浏览器打开）；KernelSU / APatch 可用模块「执行」按钮再次打开。')
 $notes.Add('- 数据来源：KHwang9883/MobileModels（CC BY-NC-SA 4.0），本仓库免费分享、无任何商业用途；')
 $notes.Add('- 单个机型 zip 也可以直接在仓库目录树中下载：https://github.com/L0NE-6/Magisk-DeviceSpoofer')
 if($WorkflowRun){

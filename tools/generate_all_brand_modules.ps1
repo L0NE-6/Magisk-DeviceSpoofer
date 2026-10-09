@@ -185,8 +185,13 @@ ui_print " -------------------------- "
 
 # 安装完成后跳转作者酷安主页：装有酷安 App 直接进主页，未安装则用浏览器打开
 if [ -x /system/bin/am ]; then
-/system/bin/am start -a android.intent.action.VIEW -d "coolapk://u/1429422" >/dev/null 2>&1 || \
-/system/bin/am start -a android.intent.action.VIEW -d "https://www.coolapk.com/u/1429422" >/dev/null 2>&1
+sleep 1
+if /system/bin/pm list packages 2>/dev/null | grep -q '^package:com\.coolapk\.market$'; then
+/system/bin/am start -d 'coolmarket://u/1429422' >/dev/null 2>&1 || \
+/system/bin/am start -a android.intent.action.VIEW -d 'https://www.coolapk.com/u/1429422' >/dev/null 2>&1
+else
+/system/bin/am start -a android.intent.action.VIEW -d 'https://www.coolapk.com/u/1429422' >/dev/null 2>&1
+fi
 fi
 '@
 
@@ -196,8 +201,11 @@ $tplAction = @'
 # 打开作者酷安主页：装有酷安 App 直接跳转，未安装则用浏览器打开
 # （KernelSU / APatch 管理器：模块卡片「执行 / Action」按钮）
 
-/system/bin/am start -a android.intent.action.VIEW -d "coolapk://u/1429422" >/dev/null 2>&1 || \
-/system/bin/am start -a android.intent.action.VIEW -d "https://www.coolapk.com/u/1429422" >/dev/null 2>&1
+if /system/bin/pm list packages 2>/dev/null | grep -q '^package:com\.coolapk\.market$'; then
+/system/bin/am start -d 'coolmarket://u/1429422' >/dev/null 2>&1
+else
+/system/bin/am start -a android.intent.action.VIEW -d 'https://www.coolapk.com/u/1429422' >/dev/null 2>&1
+fi
 '@
 
 $tplApplyProps = @'
@@ -297,8 +305,8 @@ if [ -f /data/adb/magisk/util_functions.sh ] || [ -d /sbin/.magisk ] || [ -d /da
 				ui_print "- 模块已释放到 $MODPATH"
 				ui_print "- 重启后机型生效"
 				if [ -x /system/bin/am ]; then
-					/system/bin/am start -a android.intent.action.VIEW -d "coolapk://u/1429422" >/dev/null 2>&1 || \
-					/system/bin/am start -a android.intent.action.VIEW -d "https://www.coolapk.com/u/1429422" >/dev/null 2>&1
+					/system/bin/am start -d 'coolmarket://u/1429422' >/dev/null 2>&1 || \
+					/system/bin/am start -a android.intent.action.VIEW -d 'https://www.coolapk.com/u/1429422' >/dev/null 2>&1
 				fi
 				exit 0
 			fi

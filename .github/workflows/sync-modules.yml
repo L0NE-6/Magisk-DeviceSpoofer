@@ -18,6 +18,10 @@ on:
         description: '构建并发布一个新版本 Release（即使本次无模块变化）'
         type: boolean
         default: false
+      notes:
+        description: '自定义 Release 说明（留空 = 自动生成）'
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -98,9 +102,13 @@ jobs:
         if: ${{ (steps.commit.outputs.changed == 'true' || inputs.release) && inputs.dry_run != true }}
         env:
           GH_TOKEN: ${{ github.token }}
+          CUSTOM_NOTES: ${{ inputs.notes }}
         run: |
           TAG="${{ steps.build.outputs.tag }}"
           TITLE=$(cat dist/release-title.txt)
+          if [ -n "$CUSTOM_NOTES" ]; then
+            printf '%s\n' "$CUSTOM_NOTES" > dist/release-notes.md
+          fi
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --draft --title "$TITLE" --notes-file dist/release-notes.md
           fi
