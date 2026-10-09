@@ -48,7 +48,7 @@ if(($fingerprint -eq $oldFingerprint) -and (-not $Force)){
 Write-Host ("同步开始: upstream fingerprint " + $fingerprint)
 
 # 品牌目录 = 仓库根目录下除基础设施外的目录
-$infra = @('.github','tools','_upstream','update')
+$infra = @('.github','tools','_upstream','update','assets')
 function Get-BrandDirs { Get-ChildItem -LiteralPath $root -Directory | Where-Object { $_.Name -notin $infra -and -not $_.Name.StartsWith('.') } }
 function Count-Zips([object[]]$Dirs){ $n = 0; foreach($d in $Dirs){ if($d){ $n += @(Get-ChildItem -LiteralPath $d.FullName -Recurse -File -Filter *.zip).Count } }; return $n }
 
