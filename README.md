@@ -78,6 +78,7 @@ Magisk-DeviceSpoofer/
 ### ⬇️ 下载
 
 - **[Releases（推荐）](https://github.com/L0NE-6/Magisk-DeviceSpoofer/releases/latest)**：按品牌整包 / 全量合集 / 机型索引 CSV / SHA256 校验文件，全部由 Actions 自动构建；
+- **当前 Release**：[`v33`](https://github.com/L0NE-6/Magisk-DeviceSpoofer/releases/tag/v33)；模块内部版本号按 `v2026.10.04.3` 规则独立递增。
 - 或直接在仓库目录树点开 `品牌/机型 (代号)/` 下载单个机型 zip。
 
 ### Android 6 ~ 17（推荐）
